@@ -63,7 +63,7 @@ namespace HttpRequestHelper
 
             if (timeout != default(TimeSpan))
             {
-                _timeout = timeout;
+                SetTimeout(timeout);
             }
         }
 
@@ -73,7 +73,7 @@ namespace HttpRequestHelper
             SetCookie(cookie, null, null);
             if (timeout != default(TimeSpan))
             {
-                _timeout = timeout;
+                SetTimeout(timeout);
             }
         }
 
@@ -84,7 +84,7 @@ namespace HttpRequestHelper
             SetHeader(headers);
             if (timeout != default(TimeSpan))
             {
-                _timeout = timeout;
+                SetTimeout(timeout);
             }
         }
 
@@ -95,7 +95,7 @@ namespace HttpRequestHelper
             SetHeader(headers);
             if (timeout != default(TimeSpan))
             {
-                _timeout = timeout;
+                SetTimeout(timeout);
             }
         }
 
@@ -108,15 +108,8 @@ namespace HttpRequestHelper
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
                 CookieContainer = _cookieContainer
             };
-            if (_timeout != default(TimeSpan))
-            {
-                _client = new HttpClient(_handler);
-                _client.Timeout = _timeout;
-            }
-            else
-            {
-                _client = new HttpClient(_handler);
-            }
+
+            _client = new HttpClient(_handler);
         }
 
         public void SetTimeout(TimeSpan timeout = default(TimeSpan))
@@ -124,6 +117,7 @@ namespace HttpRequestHelper
             if (timeout != default(TimeSpan))
             {
                 _timeout = timeout;
+                _client.Timeout = timeout;
             }
         }
 
