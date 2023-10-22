@@ -43,6 +43,8 @@ namespace HttpRequestHelper
         private HttpClientHandler _handler;
         private CookieContainer _cookieContainer;
         private HttpResponseMessage _response;
+        private TimeSpan _timeout;
+
         public HttpResponseMessage Response
         {
             get
@@ -55,29 +57,46 @@ namespace HttpRequestHelper
             }
         }
 
-        public HttpRequestAsync()
+        public HttpRequestAsync(TimeSpan timeout = default(TimeSpan))
         {
             Initialize();
+
+            if (timeout != default(TimeSpan))
+            {
+                _timeout = timeout;
+            }
         }
 
-        public HttpRequestAsync(string cookie)
+        public HttpRequestAsync(string cookie, TimeSpan timeout = default(TimeSpan))
         {
             Initialize();
             SetCookie(cookie, null, null);
+            if (timeout != default(TimeSpan))
+            {
+                _timeout = timeout;
+            }
         }
 
-        public HttpRequestAsync(string cookie, Dictionary<string, string> headers)
+        public HttpRequestAsync(string cookie, Dictionary<string, string> headers, TimeSpan timeout = default(TimeSpan))
         {
             Initialize();
             SetCookie(cookie, null, null);
             SetHeader(headers);
+            if (timeout != default(TimeSpan))
+            {
+                _timeout = timeout;
+            }
         }
 
-        public HttpRequestAsync(string cookie, string path, string domain, Dictionary<string, string> headers)
+        public HttpRequestAsync(string cookie, string path, string domain, Dictionary<string, string> headers, TimeSpan timeout = default(TimeSpan))
         {
             Initialize();
             SetCookie(cookie, path, domain);
             SetHeader(headers);
+            if (timeout != default(TimeSpan))
+            {
+                _timeout = timeout;
+            }
         }
 
         private void Initialize()
@@ -89,7 +108,23 @@ namespace HttpRequestHelper
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
                 CookieContainer = _cookieContainer
             };
-            _client = new HttpClient(_handler);
+            if (_timeout != default(TimeSpan))
+            {
+                _client = new HttpClient(_handler);
+                _client.Timeout = _timeout;
+            }
+            else
+            {
+                _client = new HttpClient(_handler);
+            }
+        }
+
+        public void SetTimeout(TimeSpan timeout = default(TimeSpan))
+        {
+            if (timeout != default(TimeSpan))
+            {
+                _timeout = timeout;
+            }
         }
 
         public void SetCookie(string cookie, string path, string domain)
