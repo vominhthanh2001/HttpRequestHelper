@@ -104,9 +104,9 @@ namespace HttpRequestHelper
             _cookieContainer = new CookieContainer();
             _handler = new HttpClientHandler
             {
-                AllowAutoRedirect = true,
+                AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                CookieContainer = _cookieContainer
+                CookieContainer = _cookieContainer,
             };
 
             _client = new HttpClient(_handler);
@@ -241,6 +241,16 @@ namespace HttpRequestHelper
         {
             var response = _cancellationToken != null ?
                 await _client.PostAsync(url, new FormUrlEncodedContent(dataPost), _cancellationToken) : await _client.PostAsync(url, new FormUrlEncodedContent(dataPost));
+
+            string text = await GetTextContent(response);
+
+            return text;
+        }
+
+        public async Task<string> PostAsync(string url, MultipartFormDataContent multipart)
+        {
+            var response = _cancellationToken != null ?
+           await _client.PostAsync(url, multipart, _cancellationToken) : await _client.PostAsync(url, multipart);
 
             string text = await GetTextContent(response);
 
