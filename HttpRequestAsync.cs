@@ -1,12 +1,17 @@
 ﻿using HttpRequestHelper.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HttpRequestHelper
 {
@@ -106,7 +111,7 @@ namespace HttpRequestHelper
             {
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                CookieContainer = _cookieContainer,
+                CookieContainer = _cookieContainer
             };
 
             _client = new HttpClient(_handler);
@@ -178,7 +183,7 @@ namespace HttpRequestHelper
                 proxy = new WebProxy
                 {
                     Address = new Uri($"http://{ip}:{port}"),
-                    BypassProxyOnLocal = false,
+                    BypassProxyOnLocal = true,
                     UseDefaultCredentials = false,
                 };
             }
@@ -255,6 +260,53 @@ namespace HttpRequestHelper
             string text = await GetTextContent(response);
 
             return text;
+        }
+
+        public async Task<System.Drawing.Bitmap> DownloadImage(string url)
+        {
+            System.Drawing.Bitmap image = null;
+
+            var response = _cancellationToken != null ?
+            await _client.GetAsync(url, _cancellationToken) : await _client.GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+
+            var buffer = await response.Content.ReadAsStreamAsync();
+
+            using (MemoryStream memory = new MemoryStream())
+            {
+                await buffer.CopyToAsync(memory);
+
+                image = new System.Drawing.Bitmap(buffer);
+
+                memory.Close();
+            }
+
+            return image;
+        }
+
+        public async Task<string> DownloadImageBase64(string url)
+        {
+            string base64String = string.Empty;
+
+            var response = _cancellationToken != null ?
+            await _client.GetAsync(url, _cancellationToken) : await _client.GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+
+            var buffer = await response.Content.ReadAsStreamAsync();
+
+            using (MemoryStream memory = new MemoryStream())
+            {
+                await buffer.CopyToAsync(memory);
+
+                // Convert byte[] to Base64 String
+                 base64String = Convert.ToBase64String(memory.ToArray());
+
+                memory.Close();
+            }
+
+            return base64String;
         }
     }
 }
