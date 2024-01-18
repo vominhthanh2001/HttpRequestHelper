@@ -197,6 +197,7 @@ namespace HttpRequestHelper
             if (proxy != null)
             {
                 _handler.Proxy = proxy;
+                _handler.UseProxy = true;
             }
         }
 
