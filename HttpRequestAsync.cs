@@ -174,6 +174,11 @@ namespace HttpRequestHelper
             }
         }
 
+        public void EditValueHeader(string key)
+        {
+
+        }
+
         public void SetProxy(string ip, string port, string username, string password)
         {
             WebProxy proxy = null;
@@ -225,6 +230,18 @@ namespace HttpRequestHelper
         {
             var response = _cancellationToken != null ?
                 await _client.GetAsync(url, _cancellationToken) : await _client.GetAsync(url);
+
+            string text = await GetTextContent(response);
+
+            return text;
+        }
+
+        public async Task<string> PostAsync(string url, string dataContent, string mediaType)
+        {
+            var content = new StringContent(dataContent, Encoding.UTF8, mediaType);
+
+            var response = _cancellationToken != null ?
+                await _client.PostAsync(url, content, _cancellationToken) : await _client.PostAsync(url, content);
 
             string text = await GetTextContent(response);
 
@@ -302,7 +319,7 @@ namespace HttpRequestHelper
                 await buffer.CopyToAsync(memory);
 
                 // Convert byte[] to Base64 String
-                 base64String = Convert.ToBase64String(memory.ToArray());
+                base64String = Convert.ToBase64String(memory.ToArray());
 
                 memory.Close();
             }
