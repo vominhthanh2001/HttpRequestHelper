@@ -326,5 +326,18 @@ namespace HttpRequestHelper
 
             return base64String;
         }
+
+        public async Task DownloadVideoToFolder(string urlVideo, string savePath)
+        {
+            var response = _cancellationToken != null ?
+            await _client.GetAsync(urlVideo, _cancellationToken) : await _client.GetAsync(urlVideo);
+
+            response.EnsureSuccessStatusCode();
+
+            var videoData = await response.Content.ReadAsByteArrayAsync();
+
+            // Lưu dữ liệu vào tệp
+            File.WriteAllBytes(savePath, videoData);
+        }
     }
 }
