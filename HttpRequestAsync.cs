@@ -109,8 +109,8 @@ namespace HttpRequestHelper
             _cookieContainer = new CookieContainer();
             _handler = new HttpClientHandler
             {
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                //AllowAutoRedirect = false,
+                AutomaticDecompression = ~DecompressionMethods.None,
                 CookieContainer = _cookieContainer
             };
 
@@ -331,8 +331,6 @@ namespace HttpRequestHelper
         {
             var response = _cancellationToken != null ?
             await _client.GetAsync(urlVideo, _cancellationToken) : await _client.GetAsync(urlVideo);
-
-            response.EnsureSuccessStatusCode();
 
             var videoData = await response.Content.ReadAsByteArrayAsync();
 
